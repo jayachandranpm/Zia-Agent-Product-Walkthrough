@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zia Agent — Product Walkthrough</title>
+    <meta name="description"
+        content="Interactive product walkthrough for Zia Agent — a powerful AI agent builder with Zoho integration, RAG knowledge, and multi-provider support.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2035;
+            --bg-card-hover: #1f2847;
+            --accent: #5192ed;
+            --accent-glow: rgba(81, 146, 237, 0.3);
+            --accent-gradient: linear-gradient(135deg, #5192ed 0%, #7c3aed 100%);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(81, 146, 237, 0.3);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==================== HERO ==================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(81, 146, 237, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: heroGlow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroGlow {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            100% {
+                transform: scale(1.05) rotate(2deg);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(81, 146, 237, 0.12);
+            border: 1px solid var(--border-accent);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 32px;
+            backdrop-filter: blur(12px);
+            z-index: 1;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            z-index: 1;
+        }
+
+        .hero h1 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 48px;
+            z-index: 1;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-accent);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        .scroll-hint svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-muted);
+        }
+
+        /* ==================== STATS BAR ==================== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item {
+            padding: 40px 24px;
+            text-align: center;
+            background: var(--bg-primary);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ==================== FEATURE SECTIONS ==================== */
+        .feature-section {
+            padding: 120px 24px;
+            position: relative;
+        }
+
+        .feature-section:nth-child(odd) {
+            background: var(--bg-secondary);
+        }
+
+        .feature-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .feature-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .feature-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Recording Container */
+        .recording-container {
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 48px;
+            position: relative;
+            background: var(--bg-card);
+        }
+
+        .recording-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: linear-gradient(180deg, rgba(26, 32, 53, 0.95) 0%, rgba(26, 32, 53, 0.7) 100%);
+            z-index: 2;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .recording-dots {
+            position: absolute;
+            top: 15px;
+            left: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .recording-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .recording-dots span:nth-child(1) {
+            background: #ff5f57;
+        }
+
+        .recording-dots span:nth-child(2) {
+            background: #febc2e;
+        }
+
+        .recording-dots span:nth-child(3) {
+            background: #28c840;
+        }
+
+        .recording-label {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            background: rgba(81, 146, 237, 0.15);
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            z-index: 3;
+        }
+
+        .recording-label .rec-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .recording-container video,
+        .recording-container img {
+            width: 100%;
+            display: block;
+            object-fit: contain;
+            max-height: 680px;
+            background: var(--bg-card);
+        }
+
+        /* Feature Details Grid */
+        .feature-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-card {
+            padding: 28px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            border-color: var(--border-accent);
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(81, 146, 237, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: var(--accent);
+        }
+
+        .detail-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Screenshot Grid */
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .screenshot-card {
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .screenshot-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .screenshot-card:hover img {
+            transform: scale(1.02);
+        }
+
+        .screenshot-card .label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            background: linear-gradient(transparent, rgba(10, 14, 26, 0.9));
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ==================== NAV ==================== */
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sticky-nav.visible {
+            transform: translateY(0);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            overflow-x: auto;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+            background: rgba(81, 146, 237, 0.1);
+        }
+
+        /* ==================== TAB SHOWCASE ==================== */
+        .tabs-showcase {
+            margin: 48px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .tab-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tab-content ul li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .tab-content ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* ==================== LIGHTBOX ==================== */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            backdrop-filter: blur(8px);
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 92%;
+            max-height: 92vh;
+            border-radius: var(--radius);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            padding: 60px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: var(--bg-primary);
+        }
+
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        footer .footer-brand span {
+            color: var(--accent);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .feature-section {
+                padding: 80px 16px;
+            }
+
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==================== STICKY NAV ==================== -->
+    <nav class="sticky-nav" id="stickyNav">
+        <div class="nav-inner">
+            <div class="nav-logo">Zia <span>Agent</span></div>
+            <ul class="nav-links">
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#agents">Agents</a></li>
+                <li><a href="#editor">Agent Editor</a></li>
+                <li><a href="#chat">Chat</a></li>
+                <li><a href="#settings">Settings</a></li>
+                <li><a href="#evals">Evaluations</a></li>
+                <li><a href="#traces">Traces</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ==================== HERO ==================== -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Product Walkthrough
+        </div>
+        <h1>Build AI Agents <br>with <span>Zia Agent</span></h1>
+        <p>A powerful platform for creating, configuring, and deploying AI agents with Zoho integration, RAG-powered
+            knowledge, and comprehensive observability.</p>
+        <div class="hero-cta">
+            <a href="#dashboard" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Explore Features
+            </a>
+            <a href="#agents" class="btn btn-ghost">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                View Agents
+            </a>
+        </div>
+        <div class="scroll-hint">
+            Scroll to explore
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- ==================== STATS BAR ==================== -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value">100+</div>
+            <div class="stat-label">Zoho Tools</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">4</div>
+            <div class="stat-label">AI Providers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">6</div>
+            <div class="stat-label">Editor Tabs</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">25+</div>
+            <div class="stat-label">Zoho Apps</div>
+        </div>
+    </div>
+
+    <!-- ==================== 1. DASHBOARD ==================== -->
+    <section class="feature-section" id="dashboard">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">1</div>
+                <h2>Dashboard Overview</h2>
+                <p>Your command center — real-time metrics, quick actions, and activity feeds at a glance.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="dashboard_full_initial_1771253288318.png">
+                    <source src="dashboard_overview_1771253278373.webp" type="video/webp">
+                </video>
+            </div>
+
+            <div class="feature-details">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M8 16V12M12 16V8M16 16v-3" />
+                        </svg></div>
+                    <h3>Platform Metrics</h3>
+                    <p>Instantly see Total Agents, Active Chats, Evaluations, and Zoho Connection status in a clean
+                        metrics bar.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg></div>
+                    <h3>Quick Actions</h3>
+                    <p>One-click shortcuts to create agents, start chats, manage tools, and configure settings — no
+                        extra navigation needed.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></div>
+                    <h3>Activity Feed</h3>
+                    <p>Track recent agent creations, chat sessions, and configuration changes with timestamped entries.
+                    </p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="dashboard_full_initial_1771253288318.png" alt="Dashboard Overview" loading="lazy">
+                    <div class="label">Dashboard — Full View</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="dashboard_final_1771253317159.png" alt="Dashboard Scrolled" loading="lazy">
+                    <div class="label">Dashboard — Activity & Quick Actions</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 2. AGENTS ==================== -->
+    <section class="feature-section" id="agents">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">2</div>
+                <h2>Agent Management</h2>
+                <p>Create, configure, and manage your AI agents from a beautifully designed hub.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="agents_page_hover_final_1771253387005.png">
+                    <source src="agents_list_page_1771253352143.webp" type="video/webp">
+                </video>
+            </div>
+
+            <div class="feature-details">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="10" rx="2" />
+                            <circle cx="12" cy="5" r="2" />
+                            <path d="M12 7v4" />
+                            <circle cx="8" cy="16" r="1" />
+                            <circle cx="16" cy="16" r="1" />
+                        </svg></div>
+                    <h3>Agent Cards</h3>
+                    <p>Each agent card displays the model provider, tool count, and status. Hover to reveal Edit, Chat,
+                        and Delete actions.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg></div>
+                    <h3>Multi-Provider Support</h3>
+                    <p>Agents can use Ollama (local), OpenAI GPT-5.2, Anthropic Claude 4.5, or Google Gemini 2.5 models.
+                    </p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                            <path d="M2 12h20" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg></div>
+                    <h3>Zoho Integration</h3>
+                    <p>Equip agents with 100+ Zoho tools across CRM, Desk, Analytics, Books, and 25+ more Zoho
+                        applications.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="agents_page_hover_final_1771253387005.png" alt="Agents List" loading="lazy">
+                    <div class="label">Agents List — Interactive Cards</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 3. AGENT EDITOR ==================== -->
+    <section class="feature-section" id="editor">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">3</div>
+                <h2>Agent Editor</h2>
+                <p>A comprehensive 6-tab editor to fully configure every aspect of your AI agent.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="agent_configuration_tab_1771253445429.png">
+                    <source src="edit_agent_page_1771253422276.webp" type="video/webp">
+                </video>
+            </div>
+
+            <div class="tabs-showcase">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab(event, 'tab-config')">Configuration</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-workflow')">Workflow</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-knowledge')">Knowledge</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-tools')">Tools</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-memories')">Memories</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-settings')">Settings</button>
+                </div>
+
+                <div class="tab-content active" id="tab-config">
+                    <p>The <strong>Configuration</strong> tab is your starting point. Set the agent's name, write
+                        detailed system prompt instructions, and select the AI provider and model.</p>
+                    <ul>
+                        <li>Agent Name and Description fields</li>
+                        <li>System Prompt with personality and behavior guidelines</li>
+                        <li>AI Provider selection (Ollama, OpenAI, Anthropic, Gemini)</li>
+                        <li>Model selection with dropdowns for each provider</li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="tab-workflow">
+                    <p>The <strong>Workflow</strong> tab features a visual drag-and-drop builder for mapping agent
+                        decision logic.</p>
+                    <ul>
+                        <li>Add Condition, Action, and Tool nodes to the canvas</li>
+                        <li>Connect nodes to define execution flow</li>
+                        <li>Clear and reset workflow at any time</li>
+                        <li>Visual representation of complex agent logic</li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="tab-knowledge">
+                    <p>The <strong>Knowledge</strong> tab manages RAG (Retrieval-Augmented Generation) capabilities —
+                        upload documents and the agent will reference them during conversations.</p>
+                    <ul>
+                        <li>Upload PDF, DOCX, TXT, MD, and JSON files (up to 25MB each)</li>
+                        <li>Track document count, chunks, and total knowledge base size</li>
+                        <li>Search indexed knowledge to verify content</li>
+                        <li>Automatic chunking and embedding for fast retrieval</li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="tab-tools">
+                    <p>The <strong>Tools</strong> tab gives access to a comprehensive registry of 100+ tools across 25+
+                        Zoho applications.</p>
+                    <ul>
+                        <li>Search and filter by category, Zoho app, or selection status</li>
+                        <li>Toggle tools on/off with individual checkboxes</li>
+                        <li>Tools include CRM, Desk, Analytics, Books, and more</li>
+                        <li>Metrics showing selected vs available tool counts</li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="tab-memories">
+                    <p>The <strong>Memories</strong> tab displays the agent's episodic memory bank (MEMRL), allowing the
+                        agent to recall past interactions and context.</p>
+                    <ul>
+                        <li>View stored episodic memories from past interactions</li>
+                        <li>Refresh the memory bank to see latest entries</li>
+                        <li>Context carryover between conversation sessions</li>
+                    </ul>
+                </div>
+                <div class="tab-content" id="tab-settings">
+                    <p>The <strong>Settings</strong> tab provides advanced configuration toggles for the individual
+                        agent.</p>
+                    <ul>
+                        <li>Toggle agent active/inactive status</li>
+                        <li>Save agent-specific settings independently</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="agent_configuration_tab_1771253445429.png" alt="Configuration Tab" loading="lazy">
+                    <div class="label">Configuration — Name, Prompt & Model</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 4. CHAT ==================== -->
+    <section class="feature-section" id="chat">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">4</div>
+                <h2>Chat Interface</h2>
+                <p>Talk to your agents in a clean, responsive chat UI with real-time reasoning transparency.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="initial_chat_interface_1771253563025.png">
+                    <source src="chat_interface_1771253526087.webp" type="video/webp">
+                </video>
+            </div>
+
+            <div class="feature-details">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg></div>
+                    <h3>Three-Pane Design</h3>
+                    <p>A left sidebar for conversation history, center chat area, and input zone. The sidebar collapses
+                        for a wider chat view.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M9.5 2A5.5 5.5 0 0 0 4 7.5c0 1.58.67 3 1.73 4.01L12 22l6.27-10.49A5.5 5.5 0 0 0 14.5 2h-5z" />
+                            <path d="M12 2v6" />
+                            <path d="M9 9h6" />
+                        </svg></div>
+                    <h3>Thinking Steps</h3>
+                    <p>Expand the reasoning accordion to see the agent's Chain-of-Thought process — understand why it
+                        chose specific tools or knowledge.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 10v12" />
+                            <path
+                                d="M15 5.88L14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88z" />
+                        </svg></div>
+                    <h3>Feedback & History</h3>
+                    <p>Like/dislike responses for quality feedback. Conversation history persists in the sidebar with
+                        delete options on hover.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="initial_chat_interface_1771253563025.png" alt="Chat Welcome" loading="lazy">
+                    <div class="label">Chat — Welcome Screen</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="chat_response_thinking_expanded_1771253604645.png" alt="Chat Response" loading="lazy">
+                    <div class="label">Chat — AI Response with Thinking Steps</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 5. SETTINGS ==================== -->
+    <section class="feature-section" id="settings">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">5</div>
+                <h2>Settings & Integrations</h2>
+                <p>Configure AI providers, Zoho OAuth, and global preferences from one unified page.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="settings_page_initial_1771253687082.png">
+                    <source src="settings_page_1771253673672.webp" type="video/webp">
+                </video>
+            </div>
+
+            <div class="feature-details">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                        </svg></div>
+                    <h3>AI Provider Config</h3>
+                    <p>Set API keys and default models for OpenAI (GPT-5.2), Anthropic (Claude 4.5), Google Gemini
+                        (2.5), and local Ollama models.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg></div>
+                    <h3>Zoho OAuth</h3>
+                    <p>Configure Client ID and Secret for Zoho API access. One-click authorization with auto-redirect
+                        callback handling.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg></div>
+                    <h3>Preferences</h3>
+                    <p>Set default AI provider, default model, and enable Smart Traversal for optimized agent
+                        performance.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="settings_page_initial_1771253687082.png" alt="AI Providers" loading="lazy">
+                    <div class="label">AI Provider Configuration</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="settings_preferences_page_1771253722799.png" alt="Preferences" loading="lazy">
+                    <div class="label">General Preferences</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 6. EVALUATIONS ==================== -->
+    <section class="feature-section" id="evals">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">6</div>
+                <h2>Agent Evaluations</h2>
+                <p>Test and score your agents systematically with automated test cases and real user feedback loops.</p>
+            </div>
+
+            <div class="recording-container">
+                <div class="recording-dots"><span></span><span></span><span></span></div>
+                <div class="recording-label"><span class="rec-dot"></span> Recording</div>
+                <video autoplay loop muted playsinline poster="automated_evals_tab_initial_1771254415637.png">
+                    <source src="automated_evals_recording_1771254409841.webp" type="video/webp">
+                </video>
+            </div>
+
+            <!-- Tabbed Automated / Feedback Showcase -->
+            <div class="tabs-showcase">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab(event, 'eval-automated')">Automated Evals</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'eval-feedback')">Feedback Evals</button>
+                </div>
+
+                <div id="eval-automated" class="tab-content active">
+                    <p>Create automated test suites for your agents — define test inputs, expected outputs, and
+                        evaluation metrics. Run them on demand to get pass/fail results with composite scoring.</p>
+                    <ul>
+                        <li>Create evaluation with name, agent, and configurable metrics (Relevance, Accuracy, Tool
+                            Usage, Latency)</li>
+                        <li>Add multiple test cases with input messages and expected responses</li>
+                        <li>Run evaluations on demand — results scored automatically (e.g. 62%, 69%)</li>
+                        <li>Dashboard summary: Total Evaluations, Running, Completed, and Avg Score</li>
+                        <li>View, re-run, edit, duplicate, or delete any evaluation</li>
+                    </ul>
+                </div>
+
+                <div id="eval-feedback" class="tab-content">
+                    <p>Collect real user feedback on agent responses through like/dislike ratings and qualitative
+                        reviews. Feedback is tracked per-agent and aggregated into satisfaction metrics.</p>
+                    <ul>
+                        <li>Automatic feedback aggregation from all chat interactions per agent</li>
+                        <li>Satisfaction rate calculation (e.g. 33% positive from 3 responses)</li>
+                        <li>Performance donut chart showing overall satisfaction visually</li>
+                        <li>User Feedback timeline: Positive/Negative tags, reasons, and message previews</li>
+                        <li>Export results and generate AI-powered insights for improvement</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-details">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg></div>
+                    <h3>Automated Evals</h3>
+                    <p>Run predefined test cases against agents to measure accuracy, tool usage correctness, and
+                        response quality with weighted scoring.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg></div>
+                    <h3>Feedback Evals</h3>
+                    <p>Collect human feedback on agent responses with like/dislike ratings, reason tagging, and
+                        qualitative reviews.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                            <polyline points="17 6 23 6 23 12" />
+                        </svg></div>
+                    <h3>Scoring Metrics</h3>
+                    <p>Track Total Evaluations, Running tests, Completed counts, and Average Score across all evaluation
+                        runs.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="automated_evals_tab_initial_1771254415637.png" alt="Automated Evals Dashboard"
+                        loading="lazy">
+                    <div class="label">Automated Evals — Dashboard (69% Avg Score)</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="create_evaluation_form_filled_1771254469907.png" alt="Create Evaluation Form"
+                        loading="lazy">
+                    <div class="label">Create Evaluation — Test Cases & Metrics</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="evaluation_run_results_1771254567741.png" alt="Evaluation Results" loading="lazy">
+                    <div class="label">Evaluation Results — Pending & Completed</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="feedback_evals_tab_initial_1771254581494.png" alt="Feedback Evals Tab" loading="lazy">
+                    <div class="label">Feedback Evals — User Satisfaction (33%)</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="feedback_evaluation_results_1771254594985.png" alt="Feedback Detail" loading="lazy">
+                    <div class="label">Feedback Detail — Performance Metrics & Reviews</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 7. TRACES ==================== -->
+    <section class="feature-section" id="traces">
+        <div class="feature-container">
+            <div class="feature-header">
+                <div class="feature-number">7</div>
+                <h2>Execution Traces</h2>
+                <p>Deep observability into every agent execution — tokens, latency, cost, and step-by-step timelines.
+                </p>
+            </div>
+
+            <div class="feature-details" style="margin-bottom: 48px;">
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg></div>
+                    <h3>Trace List</h3>
+                    <p>Browse 26+ execution traces with agent name, status, token count, latency, cost, and timestamp.
+                        Search and filter by agent or status.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                            <path d="M4.93 4.93l1.41 1.41" />
+                            <path d="M17.66 4.93l-1.41 1.41" />
+                        </svg></div>
+                    <h3>Performance Metrics</h3>
+                    <p>Drill into any trace to see Total Tokens (293), Latency (10.9s), Cost ($0.0004), Input/Output
+                        token breakdown.</p>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                            <line x1="8" y1="16" x2="12" y2="16" />
+                        </svg></div>
+                    <h3>Execution Timeline</h3>
+                    <p>View the agent's step-by-step reasoning timeline and the full rendered output for debugging and
+                        quality assurance.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-grid">
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="traces_page_list_1771253785115.png" alt="Traces List" loading="lazy">
+                    <div class="label">Traces — Execution List (26 traces)</div>
+                </div>
+                <div class="screenshot-card" onclick="openLightbox(this)">
+                    <img src="trace_details_full_1771253799054.png" alt="Trace Detail" loading="lazy">
+                    <div class="label">Trace Detail — Metrics & Agent Output</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer>
+        <div class="footer-brand">Zia <span>Agent</span></div>
+        <p>AI Agent Builder — Built with Python, Flask, and modern web technologies</p>
+        <p style="margin-top: 8px; opacity: 0.5;">Product Walkthrough • 2026</p>
+    </footer>
+
+    <!-- ==================== LIGHTBOX ==================== -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close">&times;</button>
+        <img id="lightboxImg" src="" alt="Zoomed screenshot">
+    </div>
+
+    <script>
+        // Sticky nav
+        const nav = document.getElementById('stickyNav');
+        const hero = document.querySelector('.hero');
+        const observer = new IntersectionObserver(([entry]) => {
+            nav.classList.toggle('visible', !entry.isIntersecting);
+        }, { threshold: 0.1 });
+        observer.observe(hero);
+
+        // Active nav link
+        const sections = document.querySelectorAll('.feature-section');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    const id = entry.target.id;
+                    const activeLink = document.querySelector(`.nav-links a[href="#${id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(s => sectionObserver.observe(s));
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Tabs
+        function switchTab(e, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Lightbox
+        function openLightbox(card) {
+            const img = card.querySelector('img');
+            document.getElementById('lightboxImg').src = img.src;
+            document.getElementById('lightbox').classList.add('open');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('open');
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Lazy reveal animations
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.detail-card, .screenshot-card, .recording-container').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(24px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            revealObserver.observe(el);
+        });
+    </script>
+</body>
+
+</html>
